@@ -1,0 +1,29 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    background-color: #f8f8f8;
+    min-height: 100vh;
+    display: flex;
+    width: 100%;
+}
+
+.container .actions{
+    display: block;
+    width: 400px;
+    background-color: rgb(252, 246, 228);
+    padding: 20px;
+}
+
+.container .playground {
+    flex: 1;
+    background-color: rgb(200, 248, 213);
+    min-height: 100vh;
+}
+
+#box{
+    background-color: #616366;
+}
+
