@@ -21,7 +21,8 @@ document.addEventListener('DOMContentLoaded', function () {
         canvas,
         width,
         height,
-        dpr
+        dpr,
+        showFps: true
     });
 
     const sun = new Star({

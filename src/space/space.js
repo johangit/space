@@ -1,7 +1,7 @@
 import {degToRad, animate} from '../utilities';
 
 export class Space {
-    constructor({canvas, width, height, dpr}) {
+    constructor({canvas, width, height, dpr, showFps}) {
         canvas.width = width * dpr;
         canvas.height = height * dpr;
         canvas.style.width = `${width}px`;
@@ -10,11 +10,16 @@ export class Space {
         this.canvasWidth = width;
         this.canvasHeight = height;
 
+        this.showFps = !!showFps;
+        this.fps = {
+            value: 0,
+            lastCalledTime: 0,
+            lastShowedTime: 0,
+            updatingTime: .4
+        };
+
         this.context = canvas.getContext('2d');
         this.context.scale(dpr, dpr);
-
-        // console.log(this.context);
-        // console.log(this.context.hasOwnProperty('setTranslate'));
 
         this.context.resetTranslate = (x, y) => {
             this.context.resetTransform();
@@ -38,13 +43,33 @@ export class Space {
         this.stars.push(star);
     }
 
+    drawFPS() {
+        if (!this.fps.lastCalledTime) {
+            this.fps.lastCalledTime = performance.now();
+            this.fps.lastShowedTime = performance.now();
+            this.fps.value = 0;
+            return;
+        }
+
+        const delta = (performance.now() - this.fps.lastCalledTime) / 1000;
+        this.fps.lastCalledTime = performance.now();
+
+        if ((performance.now() - this.fps.lastShowedTime) / 1000 > this.fps.updatingTime) {
+            this.fps.lastShowedTime = performance.now();
+            this.fps.value = 1 / delta;
+        }
+
+
+        this.context.resetTranslate(0, 0);
+        this.context.fillStyle = '#ccc';
+        this.context.fillRect(10, 10, 120, 30);
+        this.context.fillStyle = '#777';
+        this.context.font = 'bold 20px monospace';
+        this.context.fillText(`FPS: ${Math.round(this.fps.value)}`, 20, 30);
+    }
+
     play() {
         this.status = 'play';
-
-        // this.stars.forEach(star => {
-        //     star.draw(this.context)
-        // });
-
         let progress = 1;
 
         const animate = () => {
@@ -54,6 +79,10 @@ export class Space {
                 star.draw(this.context, progress);
                 progress++;
             });
+
+            if (this.showFps) {
+                this.drawFPS();
+            }
 
             if (this.status === 'play') {
                 requestAnimationFrame(animate);
