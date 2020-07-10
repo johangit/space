@@ -11,7 +11,11 @@ export class Star extends SpaceObject {
     draw(context, progress) {
         context.resetTranslate(this.x, this.y);
 
+        context.save();
         context.beginPath();
+
+        context.shadowColor = lightenDarkenColor(this.color, 10);
+        context.shadowBlur = 25;
 
         context.lineWidth = 4;
         context.strokeStyle = lightenDarkenColor(this.color, 20);
@@ -22,6 +26,7 @@ export class Star extends SpaceObject {
         context.fill();
 
         context.closePath();
+        context.restore();
 
         this.planets.forEach(planet => {
             planet.draw(context, progress);

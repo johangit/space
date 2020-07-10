@@ -2,8 +2,9 @@ import {SpaceObject} from "./spaceObject";
 import {degToRad, lightenDarkenColor, polarToRelative, relativeToPolar} from "../utilities";
 
 export class Planet extends SpaceObject {
-    constructor({radius, color, name, distance, orbitalSpeed}) {
-        const relativeCoords = polarToRelative(distance, 0);
+    constructor({radius, color, name, distance, orbitalSpeed, initialAngle}) {
+        initialAngle = initialAngle ? initialAngle : Math.round(Math.random() * 360);
+        const relativeCoords = polarToRelative(distance, initialAngle);
 
         super({
             radius,
@@ -14,8 +15,9 @@ export class Planet extends SpaceObject {
         });
 
         this.position = {
-            orbitalSpeed,
-            angle: 0,
+            orbitalSpeed,  // deg per sec
+            initialAngle,
+            angle: initialAngle,
         };
     }
 
@@ -23,21 +25,21 @@ export class Planet extends SpaceObject {
         let polarCoords = relativeToPolar(this.x, this.y);
         polarCoords.angle = this.position.angle;
         let relativeCoords = polarToRelative(polarCoords.radius, polarCoords.angle);
-        this.position.angle += this.position.orbitalSpeed / 100;
+        this.position.angle = this.position.initialAngle + this.position.orbitalSpeed * (progress / 1000);
 
-
+        context.save();
         context.beginPath();
 
-        context.arc(relativeCoords.x, relativeCoords.y, this.radius, 0, degToRad(360));
-
-        context.lineWidth = 2;
+        context.lineWidth = 1;
         context.strokeStyle = lightenDarkenColor(this.color, 20);
-        context.stroke();
 
         context.fillStyle = this.color;
+
+        context.arc(relativeCoords.x, relativeCoords.y, this.radius, 0, degToRad(360));
         context.fill();
+        context.stroke();
 
         context.closePath();
-
+        context.restore();
     }
 }

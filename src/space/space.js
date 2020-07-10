@@ -17,6 +17,7 @@ export class Space {
             lastShowedTime: 0,
             updatingTime: .4
         };
+        this.startedAt = performance.now();
 
         this.context = canvas.getContext('2d');
         this.context.scale(dpr, dpr);
@@ -27,20 +28,37 @@ export class Space {
             this.context.translate(x, y);
         }
 
+        this.context.roundedRect = function (x, y, width, height, radius) {
+            if (width < 2 * radius) radius = width / 2;
+            if (height < 2 * radius) radius = height / 2;
+            this.beginPath();
+            this.moveTo(x + radius, y);
+            this.arcTo(x + width, y, x + width, y + height, radius);
+            this.arcTo(x + width, y + height, x, y + height, radius);
+            this.arcTo(x, y + height, x, y, radius);
+            this.arcTo(x, y, x + width, y, radius);
+            this.closePath();
+        }
+
         this.clear();
 
+        this.asteroids = [];
         this.stars = [];
         this.status = 'stop';
     }
 
     clear() {
         this.context.resetTranslate(0, 0);
-        this.context.fillStyle = "#636363";
+        this.context.fillStyle = "#535353";
         this.context.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
     }
 
     addStar(star) {
         this.stars.push(star);
+    }
+
+    addAsteroids(asteroid) {
+        this.asteroids.push(asteroid);
     }
 
     drawFPS() {
@@ -61,23 +79,25 @@ export class Space {
 
 
         this.context.resetTranslate(0, 0);
-        this.context.fillStyle = '#ccc';
-        this.context.fillRect(10, 10, 120, 30);
-        this.context.fillStyle = '#777';
-        this.context.font = 'bold 20px monospace';
+        this.context.fillStyle = '#2F2F2F';
+        this.context.roundedRect(10, 10, 120, 30, 2);
+        this.context.fill();
+
+        this.context.fillStyle = '#fff';
+        this.context.font = '15px monospace';
         this.context.fillText(`FPS: ${Math.round(this.fps.value)}`, 20, 30);
     }
 
     play() {
         this.status = 'play';
-        let progress = 1;
 
         const animate = () => {
+            let progress = Math.round(performance.now() - this.startedAt);
+
             this.clear();
 
             this.stars.forEach(star => {
                 star.draw(this.context, progress);
-                progress++;
             });
 
             if (this.showFps) {
